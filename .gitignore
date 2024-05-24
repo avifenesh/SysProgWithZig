@@ -10,7 +10,10 @@
 !.*
 
 *.o
+.typo
 
 # Ignore `bin` dir
 bin/
 */bin/*
+
+.history
