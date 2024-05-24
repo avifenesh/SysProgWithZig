@@ -1,0 +1,11 @@
+name: Install Zig
+
+runs:
+    using: "composite"
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Install Zig
+          shell: bash
+          run: sudo snap install --beta zig --classic
