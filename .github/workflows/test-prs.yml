@@ -1,0 +1,21 @@
+name: Test PRs
+
+on:
+    pull_request:
+        branches:
+            - main
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install Dependencies
+              uses: ./.github/workflows/Install-dependencies
+
+            - name: Run tests
+              working-directory: ./ziging
+              shell: bash
+              run: zig test testing_stuff.zig

@@ -11,5 +11,5 @@ test "test2" {
 }
 
 test "test3" {
-    try expectEqual(1 + 1, 3);
+    try expectEqual(1 + 1, 2);
 }
