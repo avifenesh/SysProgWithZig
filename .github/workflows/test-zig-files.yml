@@ -20,12 +20,8 @@ jobs:
               uses: ./.github/workflows/Install-dependencies
 
             - name: Run tests on ZIG file change
-              if: ${{ contains(github.path, '.zig') }}
+              working-directory: ziging
               shell: bash
-              run: zig test ${{ github.path }}
-
-            - name: Run tests
-              if: ${{ ! contains(github.path, '.zig') }}
-              working-directory: ./ziging
-              shell: bash
-              run: zig test testing_stuff.zig
+              run: |
+                  zig test basics.zig
+                  zig test testing_stuff.zig

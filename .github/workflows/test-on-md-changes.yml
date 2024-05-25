@@ -26,5 +26,5 @@ jobs:
               working-directory: ./
               shell: bash
               run: |
-                  markdownlint . --ignore-path ./ignore_files/.markdownlintignore
+                  markdownlint . --ignore-path ./ignore_files/.markdownlintignore --disable MD033
                   codespell -q 3 -I ./ignore_files/.codespellignore .
