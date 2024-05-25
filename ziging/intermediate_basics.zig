@@ -81,3 +81,34 @@ test "some games with structs" {
     myAges.me = 30;
     try expect(myAges.me == myAges.she);
 }
+
+// Unions
+
+const Result = union { int: i64, float: f64, bool: bool };
+
+test "Switch to get result type" {
+    const value: i64 = 65;
+    const tets_val = switch (@TypeOf(value)) {
+        i64 => Result{ .int = value },
+        f64 => Result{ .float = value },
+        bool => Result{ .bool = value },
+        else => unreachable,
+    };
+    try expect(tets_val.int == 65);
+    try expectEqual(tets_val.int, value);
+}
+
+const Direct = union(Direction) { north: u8, south: i64, west: f32, east: bool };
+
+test "switch on tagged union" {
+    var value = Direct{ .north = 2 };
+    switch (value) {
+        .east => |*b| b.* = !b.*,
+        .north => |*u| u.* += 1,
+        .west => |*f| f.* *= 3.5,
+        .south => |*i| i.* *= -1,
+    }
+    try expect(value.north == 3);
+}
+
+const AnotherDirect = union(enum) { north: u8, south: i64, west: f32, east: bool, none };
