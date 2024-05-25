@@ -26,21 +26,15 @@ so I will also have some fun with docker and qemu.
    I'll write my own docker images and qemu images, and I'll write the code in ZIG.
    Suppose to be fun. :woman_dancing:
 
+<!-- markdownlint-disable MD009 MD033 -->
 <div style="display: flex; justify-content: space-between;">
-    <img alt="inside-the-computer" src="https://images.unsplash.com/photo-1675602488453-c3897a475af5?q=80&w=2670&auto=format
-    &fit=crop&ixlib=rb-4.0.
-    3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    <img alt="inside-the-computer" 
+    src="https://images.unsplash.com/photo-1675602488453-c3897a475af5?q=80&w=2670auto=formatfit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     style="width: 30%; margin-right: 2%;">
     <img alt="bash"
-    src=
-    "https://images.unsplash.com/photo-1629654297299-c8506221ca97?q=80&w=2574&
-    auto=format
-    &fit=crop&ixlib=rb-4.0.3&
-    ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    src="https://images.unsplash.com/photo-1629654297299-c8506221ca97?q=80w=2574auto=formatfit=cropixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     style="width: 30%; margin-right: 2%;">
     <img alt="grot-and-github"
-    src="https://images.unsplash.com/photo-1647166545674-ce28ce93bdca?q=80
-    &w=2670&auto=format&fit=crop&ixlib=rb-4.0
-    .3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    src="https://images.unsplash.com/photo-1647166545674-ce28ce93bdca?q=80w=2670auto=formatfit=cropixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     style="width: 30%;">
 </div>
