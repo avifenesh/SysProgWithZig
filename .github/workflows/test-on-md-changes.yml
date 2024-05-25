@@ -1,0 +1,30 @@
+name: Test MD files
+
+on:
+    pull_request:
+        branches:
+            - main
+        paths:
+            - "**.md"
+            - ".github/workflows/test-on-md-changes.yml"
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: install dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install python3-pip nodejs npm
+                  npm install -g markdownlint-cli
+                  pip3 install codespell
+
+            - name: Run tests
+              working-directory: ./
+              shell: bash
+              run: |
+                  markdownlint . --ignore-path ./ignore_files/.markdownlintignore --disable MD033
+                  codespell -q 3 -I ./ignore_files/.codespellignore .
