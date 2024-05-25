@@ -25,3 +25,4 @@ jobs:
               run: |
                   zig test basics.zig
                   zig test testing_stuff.zig
+                  zig test intermediate_basics.zig
