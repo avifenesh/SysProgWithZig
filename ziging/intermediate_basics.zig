@@ -63,3 +63,21 @@ test "globally count" {
     try expect(@intFromEnum(Mode.on) == 0);
     try expectEqual(Mode.increase_count_and_return(), 2);
 }
+
+// Structs
+
+const FamilyAges = struct {
+    me: u16 = 29,
+    she: u16 = 30,
+    him: u16,
+    pub fn returnHisAge(self: FamilyAges) u16 {
+        return self.him;
+    }
+};
+
+test "some games with structs" {
+    var myAges = FamilyAges{ .him = 47 };
+    try expect(myAges.returnHisAge() == 47);
+    myAges.me = 30;
+    try expect(myAges.me == myAges.she);
+}
