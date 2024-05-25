@@ -193,3 +193,31 @@ test "labeled block" {
     try expectEqual(count, 45);
     try expect(@TypeOf(count) == u32);
 }
+
+// # Labelled Loops #
+
+test "labeled loop" {
+    var count: usize = 0;
+    outer: for ([_]i32{
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+    }) |_| {
+        for ([_]i32{
+            1,
+            2,
+            3,
+            4,
+            5,
+        }) |_| {
+            count += 1;
+            continue :outer;
+        }
+    }
+    try expectEqual(count, 8);
+}
