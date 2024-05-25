@@ -28,3 +28,38 @@ test "slicing till end or till length" {
     const slice2 = array[2..];
     try expect(slice1.len == slice2.len);
 }
+
+// Enums
+
+const Direction = enum { north, south, west, east };
+
+const EnumWithValue = enum(u2) {
+    zero,
+    one,
+    two,
+    pub fn returnEnumValue(self: EnumWithValue) u2 {
+        return @intFromEnum(self);
+    }
+};
+
+test "get value of enum" {
+    try expectEqual(EnumWithValue.one.returnEnumValue(), 1);
+    try expectEqual(EnumWithValue.returnEnumValue(.two), 2);
+}
+
+const Mode = enum {
+    var count: u32 = 0;
+    on,
+    off,
+    pub fn increase_count_and_return() u32 {
+        Mode.count += 1;
+        return count;
+    }
+};
+
+test "globally count" {
+    Mode.count += 1;
+    try expect(Mode.count == 1);
+    try expect(@intFromEnum(Mode.on) == 0);
+    try expectEqual(Mode.increase_count_and_return(), 2);
+}
