@@ -1,9 +1,13 @@
-name: Test PRs
+name: Test ZIG files
 
 on:
     pull_request:
         branches:
             - main
+        paths:
+            - "**.zig"
+            - "**/**.zig"
+            - ".github/workflows/test-zig-files.yml"
 
 jobs:
     test:
@@ -15,7 +19,13 @@ jobs:
             - name: Install Dependencies
               uses: ./.github/workflows/Install-dependencies
 
+            - name: Run tests on ZIG file change
+              if: ${{ contains(github.path, '.zig') }}
+              shell: bash
+              run: zig test ${{ github.path }}
+
             - name: Run tests
+              if: ${{ ! contains(github.path, '.zig') }}
               working-directory: ./ziging
               shell: bash
               run: zig test testing_stuff.zig
