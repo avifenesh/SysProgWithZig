@@ -23,6 +23,7 @@ jobs:
               working-directory: ziging
               shell: bash
               run: |
-                  zig test basics.zig
+                  zig test beginner_basics.zig
                   zig test testing_stuff.zig
                   zig test intermediate_basics.zig
+                  zig test advanced_basics.zig
