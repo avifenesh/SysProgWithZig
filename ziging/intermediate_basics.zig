@@ -234,3 +234,65 @@ fn rangeHasNumber(begin: usize, end: usize, number: usize) bool {
 test "while loop expression" {
     try expect(rangeHasNumber(0, 10, 5));
 }
+
+// # Optionals #
+
+test "optional" {
+    var index: ?usize = null;
+    for (0..10) |i| {
+        if (i == 5) {
+            index = i;
+            break;
+        }
+    }
+    try expect(index != null);
+    try expectEqual(index, 5);
+}
+
+// orelse operator, kinda cool
+
+test "orelse operator" {
+    const value: ?u8 = null;
+    const result: u8 = value orelse 5;
+    try expectEqual(result, 5);
+    try expect(@TypeOf(value) == ?u8);
+    try expectEqual(@TypeOf(result), u8);
+}
+
+test "orelse unreachable" {
+    const value: ?u8 = 4;
+    const result: u8 = value orelse unreachable;
+    try expectEqual(result, 4);
+    const value2: u8 = value.?;
+    try expectEqual(value2, result);
+    try expectEqual(@TypeOf(value2), u8);
+}
+
+// using optionals in if and while, a bit like Node.js
+
+test "if optional payload capture" {
+    const value: ?u8 = 4;
+    if (value != null) {
+        const a = value;
+        _ = a;
+    }
+    var b: ?i32 = 5;
+    if (b) |*val| val.* += 1;
+
+    try expectEqual(b.?, 6);
+    try expectEqual(@TypeOf(b.?), i32);
+}
+
+var number_left: u8 = 10;
+
+fn eventuallyNullSequence() ?u8 {
+    if (number_left == 0) return null;
+    number_left -= 1;
+    return number_left;
+}
+
+test "while nul capture" {
+    var sum: u8 = 0;
+    while (eventuallyNullSequence()) |value| sum += value;
+    try expectEqual(sum, 45);
+}
