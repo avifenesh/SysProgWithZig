@@ -222,3 +222,19 @@ test "for with pointer capture" {
     for (&data) |*byte| byte.* += 1;
     try expect(eql(u8, &data, &[_]u8{ 2, 3, 4 }));
 }
+
+// # Inline Loops # -> unadvisable for performance, compiler is smarter than you usually
+
+test "inline for" {
+    const types = [_]type{ i8, i16, i32, i64, u8, u16, u32, u64, f32, f64 }; // 1, 2, 4, 8, 1, 2, 4, 8, 4, 8
+    var sum: usize = 0;
+    inline for (types) |T| sum += @sizeOf(T);
+    try expectEqual(sum, 42);
+}
+
+test "inline while" {
+    comptime var sum = 0;
+    comptime var i = 0;
+    inline while (i < 10) : (i += 1) sum += i;
+    try expectEqual(sum, 45);
+}
