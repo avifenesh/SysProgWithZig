@@ -317,3 +317,45 @@ test "tuple" {
     try expectEqual(values.len, 6);
     try expect(values.@"3"[0] == 'h');
 }
+
+// # Sentinel Termination #
+
+test "sentinel termination" {
+    const terminated = [3:0]u8{ 1, 2, 3 };
+    try expectEqual(terminated.len, 3);
+    try expect(@as(*const [4]u8, @ptrCast(&terminated))[3] == 0);
+    try expectEqual(@as(*const [4]u8, @ptrCast(&terminated)).len, 4);
+}
+
+test "string literal" {
+    try expectEqual(@TypeOf("hello"), *const [5:0]u8);
+}
+
+test "C string" {
+    const c_string: [*:0]const u8 = "hello";
+    var array: [5]u8 = undefined;
+
+    var i: usize = 0;
+    while (c_string[i] != 0) : (i += 1) {
+        array[i] = c_string[i];
+    }
+}
+
+test "coercion" {
+    const a: [*:0]u8 = undefined;
+    const b: [*]u8 = a;
+
+    const c: [5:0]u8 = undefined;
+    const d: [5]u8 = c;
+
+    const e: [:0]f32 = undefined;
+    const f: []f32 = e;
+
+    _ = .{ b, d, f }; // ignore unused variable warning
+}
+
+test "sentinel terminated slicing" {
+    var x = [_:0]u8{255} ** 3;
+    const y = x[0..3 :0];
+    _ = y; // ignore unused variable warning
+}
