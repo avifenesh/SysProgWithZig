@@ -270,3 +270,50 @@ test "opaque with declaration" {
     // var main_window: *Window = undefined;
     // main_window.show();
 }
+
+// # Anonymous Structs #
+
+test "anonymous struct literal" {
+    const Point = struct {
+        x: f32,
+        y: f32,
+    };
+
+    const pt: Point = .{ .x = 13, .y = 67 };
+
+    try expect(pt.x == 13);
+}
+
+test "fully anonymous struct" {
+    try dump(.{
+        .int = @as(u32, 1234),
+        .float = @as(f32, 12.34),
+        .b = true,
+        .s = "hi",
+    });
+}
+
+fn dump(args: anytype) !void {
+    try expect(args.int == 1234);
+    try expect(args.float == 12.34);
+    try expect(args.b);
+    try expectEqual(args.s[0], 'h');
+    try expect(args.s[1] == 'i');
+}
+
+test "tuple" {
+    const values = .{
+        @as(u32, 1234),
+        @as(f32, 12.34),
+        true,
+        "hi",
+    } ++ .{false} ** 2;
+    try expect(values[0] == 1234);
+    try expect(values[4] == false);
+    inline for (values, 0..) |v, i| {
+        if (i != 2 and i != 4 and i != 5) continue;
+        if (i == 2) try expect(v) else try expect(!v);
+    }
+    try expectEqual(values.len, 6);
+    try expect(values.@"3"[0] == 'h');
+}
