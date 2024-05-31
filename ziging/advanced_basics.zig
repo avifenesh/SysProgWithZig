@@ -2,6 +2,8 @@ const expect = @import("std").testing.expect;
 const expectEqual = @import("std").testing.expectEqual;
 const std = @import("std");
 const eql = std.mem.eql;
+const meta = std.meta;
+
 // # Comptime #
 
 fn fibonacci(n: u16) u16 {
@@ -359,3 +361,25 @@ test "sentinel terminated slicing" {
     const y = x[0..3 :0];
     _ = y; // ignore unused variable warning
 }
+// # Vectors #
+
+test "vector add" {
+    const x: @Vector(4, f32) = .{ 1, -10, 5, 3 };
+    const y: @Vector(4, f32) = .{ 2, 20, -5, 7 };
+    const z = x + y;
+    try expect(meta.eql(z, @Vector(4, f32){ 3, 10, 0, 10 }));
+}
+
+test "vector indexing" {
+    const x: @Vector(5, f32) = .{ 1, -10, 5, 3, 3 };
+    try expect(x[4] == 3);
+}
+
+test "vector * scalar" {
+    const x: @Vector(4, f32) = .{ 1, -10, 5, 3 };
+    const y = x * @as(@Vector(4, f32), @splat(2));
+    try expect(meta.eql(y, @Vector(4, f32){ 2, -20, 10, 6 }));
+}
+
+const arr: [4]f32 = @Vector(4, f32){ 1, -10, 5, 3 };
+// * note that explicit vector usage may lead to slower software with the wrong decision, the compiler auto-vectorization is fairly smart as is
