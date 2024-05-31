@@ -383,3 +383,8 @@ test "vector * scalar" {
 
 const arr: [4]f32 = @Vector(4, f32){ 1, -10, 5, 3 };
 // * note that explicit vector usage may lead to slower software with the wrong decision, the compiler auto-vectorization is fairly smart as is
+
+// # Imports #
+// * @import takes in a file and gives a struct type based on the file.
+// All declaration labeled as pub will end up in the struct ready to be used
+// Special case is the @import("std") which is a special import that gives access to the standard library
