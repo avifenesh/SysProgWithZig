@@ -238,3 +238,35 @@ test "inline while" {
     inline while (i < 10) : (i += 1) sum += i;
     try expectEqual(sum, 45);
 }
+
+// # Opaque #
+
+// * officially this is used to maintain type safety when we want to point into types we don't have information about
+// * typical use case is to maintain type safety when interoperating with C code that does not expose explicit types
+
+// const Window = opaque {};
+const Button = opaque {};
+
+extern fn show_window(*Window) callconv(.C) void;
+
+test "opaque" {
+    // Will throw an error since show_window is not defined
+    // const main_window: *Window = undefined;
+    // show_window(main_window);
+
+    // will throw an error since expected Window but got Button, and cannot cast
+    // const ok_button: *Button = undefined;
+    // showWindow(ok_button);
+}
+
+const Window = opaque {
+    fn show(self: *Window) void {
+        show_window(self);
+    }
+};
+
+test "opaque with declaration" {
+    // Will throw an error since show_window is not defined
+    // var main_window: *Window = undefined;
+    // main_window.show();
+}
