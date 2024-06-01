@@ -222,3 +222,7 @@ test "custom writer" {
     _ = try bytes.writer().write(" Writer!");
     try expect(eql(u8, bytes.items, "Hello Writer!"));
 }
+
+// # Formatting #
+// * `std.fmt` is a module that provides a set of functions to format data into a string.
+// * It is similar to the `fmt` in other language, what important to remember is that we can create pub format functions that can be used to format data into a string when calling `std.fmt.print*` functions on the objects that implement the format interface.
