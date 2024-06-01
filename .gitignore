@@ -18,3 +18,4 @@ bin/
 
 .history
 .vscode
+*.txt

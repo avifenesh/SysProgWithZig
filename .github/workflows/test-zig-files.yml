@@ -27,3 +27,4 @@ jobs:
                   zig test testing_stuff.zig
                   zig test intermediate_basics.zig
                   zig test advanced_basics.zig
+                  echo 'Avi Fenesh' | zig test standard_library.zig
