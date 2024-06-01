@@ -6,6 +6,7 @@ const eql = std.mem.eql;
 const ArrayList = std.ArrayList;
 const test_allocator = std.testing.allocator;
 const fs = std.fs;
+const os_tag = @import("builtin").os.tag;
 
 // # Allocators #
 
@@ -137,4 +138,87 @@ test "make directory" {
         if (entry.kind == .file) files_count += 1;
     }
     try expectEqual(files_count, 3);
+}
+
+// # Readers and Writers #
+
+test "io reader" {
+    var list = ArrayList(u8).init(test_allocator);
+    defer list.deinit();
+    const bytes_written = try list.writer().write("Hello, World!");
+    try expectEqual(bytes_written, 13);
+    try expect(eql(u8, list.items, "Hello, World!"));
+}
+
+test "io reader usage" {
+    const message = "Hello File!";
+    const file_name = "junk-file.txt";
+    const file = try fs.cwd().createFile(file_name, .{ .read = true });
+    defer {
+        file.close();
+        fs.cwd().deleteFile(file_name) catch unreachable;
+    }
+    try file.writeAll(message);
+    try file.seekTo(0);
+
+    const content = try file.reader().readAllAlloc(test_allocator, message.len);
+    defer test_allocator.free(content);
+
+    try expect(eql(u8, content, message));
+}
+
+fn nextLine(reader: anytype, buffer: []u8) !?[]const u8 {
+    const line = (try reader.readUntilDelimiterOrEof(buffer, '\n')) orelse return null;
+    if (os_tag == .windows) {
+        return std.mem.trimRight(u8, line, '\r');
+    } else {
+        return line;
+    }
+}
+
+test "read until next line" {
+    const stdout = std.io.getStdOut();
+    defer stdout.close();
+    const stdin = std.io.getStdIn();
+    defer stdin.close();
+
+    try stdout.writeAll(
+        \\ 
+        \\ Enter your name: 
+    );
+
+    var buffer: [100]u8 = undefined;
+    const input = (try nextLine(stdin.reader(), &buffer)).?;
+    try stdout.writer().print("Your name is: \"{s}\"\n", .{input});
+}
+
+const MyByteList = struct {
+    data: [100]u8 = undefined,
+    items: []u8 = &[_]u8{},
+
+    const Writer = std.io.Writer(
+        *MyByteList,
+        error{EndOfBuffer},
+        appendWrite,
+    );
+
+    fn appendWrite(self: *MyByteList, data: []const u8) error{EndOfBuffer}!usize {
+        if (self.items.len + data.len > self.data.len) {
+            return error.EndOfBuffer;
+        }
+        @memcpy(self.data[self.items.len..][0..data.len], data);
+        self.items = self.data[0 .. self.items.len + data.len];
+        return data.len;
+    }
+
+    fn writer(self: *MyByteList) Writer {
+        return .{ .context = self };
+    }
+};
+
+test "custom writer" {
+    var bytes = MyByteList{};
+    _ = try bytes.writer().write("Hello");
+    _ = try bytes.writer().write(" Writer!");
+    try expect(eql(u8, bytes.items, "Hello Writer!"));
 }
