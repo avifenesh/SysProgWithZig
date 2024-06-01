@@ -5,6 +5,7 @@ const expectEqual = std.testing.expectEqual;
 const eql = std.mem.eql;
 const ArrayList = std.ArrayList;
 const test_allocator = std.testing.allocator;
+const fs = std.fs;
 
 // # Allocators #
 
@@ -84,4 +85,56 @@ test "arrayList" {
     try list.appendSlice(" World!");
 
     try expect(eql(u8, list.items, "Hello World!"));
+}
+
+// # Filesystem #
+
+test "createFile, write, seeTo, read" {
+    const file_name = "junk-file.txt";
+    const file = try fs.cwd().createFile(file_name, .{ .read = true });
+    defer {
+        file.close();
+        fs.cwd().deleteFile(file_name) catch unreachable;
+    }
+    const bytes_written = try file.write("Hello, World!");
+    try expectEqual(bytes_written, 13);
+
+    var buffer: [100]u8 = undefined;
+    try file.seekTo(0);
+    const bytes_read = try file.readAll(&buffer);
+
+    try expect(eql(u8, buffer[0..bytes_read], "Hello, World!"));
+}
+
+test "file stat" {
+    const file_name = "junk-file.txt";
+    const file = try fs.cwd().createFile(file_name, .{ .read = true });
+    defer {
+        file.close();
+        fs.cwd().deleteFile(file_name) catch unreachable;
+    }
+    const stat = try file.stat();
+    try expectEqual(stat.size, 0);
+    try expectEqual(stat.kind, .file);
+    try expect(stat.ctime <= std.time.nanoTimestamp());
+}
+
+test "make directory" {
+    const dir_name = "junk-dir";
+    try fs.cwd().makeDir(dir_name);
+    var iter_dir = try fs.cwd().openDir(dir_name, .{ .iterate = true });
+    defer {
+        iter_dir.close();
+        fs.cwd().deleteTree(dir_name) catch unreachable;
+    }
+    _ = try iter_dir.createFile("x", .{});
+    _ = try iter_dir.createFile("y", .{});
+    _ = try iter_dir.createFile("z", .{});
+
+    var files_count: usize = 0;
+    var iter = iter_dir.iterate();
+    while (try iter.next()) |entry| {
+        if (entry.kind == .file) files_count += 1;
+    }
+    try expectEqual(files_count, 3);
 }
