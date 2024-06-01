@@ -18,7 +18,7 @@ so I will also have some fun with docker and qemu.
    which is [available for free on youtube](https://www.youtube.com/playlist?list=PLF2K2xZjNEf97A_uBCwEl61sdxWVP7VWC).
    The course is about system and system programming and it's in C,
    but I'll do it in ZIG.
-   The course has [homeworks](https://inst.eecs.berkeley.edu/~cs162/fa22/static/hw/),
+   The course has [homeworks](https://github.com/thecuongthehieu/CS162-Operating-Systems-and-System-Programming/tree/master/Homework),
    so throw the course,
    I'll do the homework base on the timeline of the course
    (the timeline of me watching the course),
