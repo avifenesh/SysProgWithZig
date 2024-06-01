@@ -226,3 +226,27 @@ test "custom writer" {
 // # Formatting #
 // * `std.fmt` is a module that provides a set of functions to format data into a string.
 // * It is similar to the `fmt` in other language, what important to remember is that we can create pub format functions that can be used to format data into a string when calling `std.fmt.print*` functions on the objects that implement the format interface.
+
+// TODO: Go into more details about the below subjects:
+// JSON, Random Numbers, Crypto, Hash Maps, Stacks, Sorting, Iterators, Formatting specifiers, Advanced Formatting.
+
+// # Threads #
+// * `std.thread` is a module that provides a set of functions to create and manage threads.
+// * Zig provides a more advanced ways of writing concurrent and parallel code, std.threads is available for making use of OS threads.
+
+fn ticker(step: u8) void {
+    while (true) {
+        std.time.sleep(1 * std.time.ns_per_s);
+        tick += @as(isize, step);
+    }
+}
+
+var tick: isize = 0;
+
+test "threading" {
+    const thread = try std.Thread.spawn(.{}, ticker, .{@as(u8, 1)});
+    _ = thread;
+    try expect(tick == 0);
+    std.time.sleep(3 * std.time.ns_per_s / 2);
+    try expect(tick == 1);
+}
