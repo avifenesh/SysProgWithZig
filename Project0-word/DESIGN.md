@@ -12,7 +12,6 @@
 
 utils.zig will contain utility functions that will be used in the program:
 
--   Parse the command line arguments.
 -   Open files.
 -   Allocate memory.
 -   Read line from file.
@@ -22,6 +21,6 @@ utils.zig will contain utility functions that will be used in the program:
 
 count_words.zig will contain the main function that will call the utility functions:
 
--   main function will call the utility functions to get the file path, open the file, read the file line by line, clean special characters, and count the words.
-
-Tests will be written in the count_words_test.zig file to test the utility functions, and the main function using dummy files.
+-   main.zig will be used later for all the parts of the project, it will be responsible for parsing command line arguments and calling the main function of each part based on the arguments, then it will print the result.
+-   count_words.zig will contain the main function that will call the utility functions and return the result to main.zig.
+-   Tests will be written in the count_words_test.zig file to test the utility functions, and the main function using dummy files.
