@@ -28,3 +28,9 @@ jobs:
                   zig test intermediate_basics.zig
                   zig test advanced_basics.zig
                   echo 'Avi Fenesh' | zig test standard_library.zig
+
+            - name: Run tests on Project0
+              working-directory: Project0-word
+              shell: bash
+              run: |
+                  zig test P0-tests.zig
