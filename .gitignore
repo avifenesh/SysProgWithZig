@@ -18,4 +18,6 @@ bin/
 
 .history
 .vscode
-*.txt
+
+*zig-cache
+zig-out
