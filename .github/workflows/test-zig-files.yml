@@ -34,3 +34,4 @@ jobs:
               shell: bash
               run: |
                   zig test P0-tests.zig
+                  zig test utils.zig
