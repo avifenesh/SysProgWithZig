@@ -7,16 +7,18 @@ on:
 
 jobs:
     test:
-        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                os: [ubuntu-latest, windows-latest, macos-latest]
+        runs-on: ${{ matrix.os }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - name: install dependencies
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install python3-pip
-                  pip3 install codespell
+            - name: Install Dependencies
+              uses: ./.github/workflows/Install-dependencies
+              with:
+                  which-dependencies: codespell
 
             - name: Run codespell
               working-directory: ./

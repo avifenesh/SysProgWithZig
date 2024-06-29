@@ -10,28 +10,45 @@ on:
             - ".github/workflows/test-zig-files.yml"
 
 jobs:
-    test:
+    Simple-tests:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - name: Install Dependencies
-              uses: ./.github/workflows/Install-dependencies
-
-            - name: Run tests on ZIG file change
-              working-directory: ziging
-              shell: bash
-              run: |
+            - uses: actions/checkout@v2
+            - uses: goto-bus-stop/setup-zig@v2
+            - run: |
                   zig test beginner_basics.zig
                   zig test testing_stuff.zig
                   zig test intermediate_basics.zig
                   zig test advanced_basics.zig
                   echo 'Avi Fenesh' | zig test standard_library.zig
+              working-directory: ziging
+              shell: bash
 
-            - name: Run tests on Project0
+    HW-test:
+        strategy:
+            matrix:
+                os: [ubuntu-latest, windows-latest, macos-latest]
+        runs-on: ${{ matrix.os }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - uses: actions/checkout@v2
+            - uses: goto-bus-stop/setup-zig@v2
+            - run: |
+                  echo 'testing P0-tests.zig'
+                  zig test P0-tests.zig
+                  echo 'testing utils.zig'
+                  zig test utils.zig
               working-directory: Project0-word
               shell: bash
-              run: |
-                  zig test P0-tests.zig
-                  zig test utils.zig
+
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: goto-bus-stop/setup-zig@v2
+            - run: zig fmt --check .

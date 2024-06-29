@@ -1,4 +1,10 @@
-name: Install Zig
+name: Install Dependencies
+
+inputs:
+    which-dependencies:
+        description: "Which dependencies to install"
+        required: true
+        default: "codespell"
 
 runs:
     using: "composite"
@@ -6,6 +12,10 @@ runs:
         - name: Checkout repository
           uses: actions/checkout@v4
 
-        - name: Install Zig
+        - uses: actions/checkout@v4
+        - uses: actions/setup-python@v5
+          if: ${{ inputs.which-dependencies == 'codespell'}}
+          with:
+              python-version: "3.9"
+        - run: pip install codespell
           shell: bash
-          run: sudo snap install --beta zig --classic
