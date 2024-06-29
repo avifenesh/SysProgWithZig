@@ -19,7 +19,7 @@ pub fn main() !void {
             const exit_message = printErrMessageAndExit(err);
             std.process.exit(exit_message);
         };
-        count_words.countWords(path);
+        _ = count_words.countWords(path);
     } else {
         const stdin = std.io.getStdIn();
         defer stdin.close();
@@ -56,7 +56,7 @@ pub fn main() !void {
             const exit_message = printErrMessageAndExit(err);
             std.process.exit(exit_message);
         };
-        count_words.countWords(path);
+        _ = count_words.countWords(path);
     }
 }
 
