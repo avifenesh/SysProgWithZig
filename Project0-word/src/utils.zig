@@ -1,7 +1,9 @@
 const std = @import("std");
 const Reader = std.fs.File.Reader;
 const print = std.debug.print;
-const os_tag = @import("builtin").os.tag;
+const log = std.log;
+const builtin = @import("builtin");
+const os_tag = builtin.os.tag;
 const File = std.fs.File;
 const CreateFlags = File.CreateFlags;
 const isAlphabetic = std.ascii.isAlphabetic;
@@ -14,8 +16,7 @@ const mem = std.mem;
 const eql = mem.eql;
 const GPA = std.heap.GeneralPurposeAllocator;
 const Allocator = std.mem.Allocator;
-
-pub fn nextLine(reader: anytype, buffer: []u8) !?[]const u8 {
+pub fn nextLine(reader: File.Reader, buffer: []u8) !?[]const u8 {
     const line = (try reader.readUntilDelimiterOrEof(buffer, '\n')) orelse return null;
     if (os_tag == .windows) {
         return mem.trimRight(u8, line, "\r");
@@ -89,6 +90,57 @@ pub fn cleanFile(path: []u8, buffer: []u8) ![]u8 {
     return new_file_sub_path;
 }
 
+pub fn sortFile(file_path: []u8, buffer: []u8) ![]u8 {
+    var general_purpose_allocator = GPA(.{}){};
+    const gpa = general_purpose_allocator.allocator();
+    var encoded_path_buffer = gpa.alloc(u8, file_path.len) catch unreachable;
+    const encoded_file_sub_path = try encodePathForOs(file_path, encoded_path_buffer);
+    var file_read: File = try cwd().openFile(encoded_file_sub_path, .{});
+    defer file_read.close();
+    const file_reader = file_read.reader();
+    const new_file_sub_path = mem.concat(gpa, u8, &.{ file_path, ".sorted" }) catch unreachable;
+    gpa.free(encoded_path_buffer);
+    encoded_path_buffer = gpa.alloc(u8, new_file_sub_path.len) catch unreachable;
+    const encoded_new_file_sub_path = try encodePathForOs(new_file_sub_path, encoded_path_buffer);
+    var new_file: File = try cwd().createFile(encoded_new_file_sub_path, CreateFlags{ .truncate = true });
+    const writer = new_file.writer();
+    var lines = std.ArrayList([]const u8).init(gpa);
+    while (try file_reader.readUntilDelimiterOrEof(buffer, '\n')) |line| {
+        const new_line: []u8 = try gpa.alloc(u8, line.len);
+        @memcpy(new_line, line);
+        try lines.append(new_line);
+    }
+    const items = lines.items;
+    std.mem.sort([]const u8, items, {}, lessThan);
+    for (items) |line| {
+        writer.writeAll(line) catch |err| {
+            return err;
+        };
+        writer.writeAll("\n") catch |err| {
+            return err;
+        };
+    }
+    defer new_file.close();
+    defer gpa.free(encoded_path_buffer);
+    defer lines.deinit();
+    return new_file_sub_path;
+}
+
+fn lessThan(_: void, a: []const u8, b: []const u8) bool {
+    var i: usize = 0;
+    while (i < a.len) : (i += 1) {
+        if (i >= b.len) {
+            return false;
+        }
+        if (a[i] < b[i]) {
+            return true;
+        } else if (a[i] > b[i]) {
+            return false;
+        }
+    }
+    return a.len < b.len;
+}
+
 fn encodePathForOs(path: []u8, encoded_path_buffer: []u8) ![]u8 {
     if (os_tag == .windows) {
         var i: usize = 0;
@@ -102,7 +154,7 @@ fn encodePathForOs(path: []u8, encoded_path_buffer: []u8) ![]u8 {
     }
 }
 
-fn continueToNextLine(line: []u8) bool {
+pub fn continueToNextLine(line: []const u8) bool {
     if (line.len == 0) {
         return true;
     }
@@ -127,7 +179,7 @@ fn continueToNextLine(line: []u8) bool {
     return false;
 }
 
-test "clean file" {
+fn createTestFile() ![]u8 {
     var file_path = "test_file.txt".*;
     var file: File = try std.fs.cwd().createFile(&file_path, CreateFlags{ .truncate = true, .read = true });
     defer file.close();
@@ -148,8 +200,13 @@ test "clean file" {
         print("Error writing to file: {any}\n", .{err});
         return err;
     };
+    return &file_path;
+}
+
+test "clean file" {
+    const file_path = try createTestFile();
     var buffer: [1024]u8 = undefined;
-    const cleaned_file: []const u8 = cleanFile(&file_path, &buffer) catch |err| {
+    const cleaned_file: []const u8 = cleanFile(file_path, &buffer) catch |err| {
         print("Error cleaning file: {any}\n", .{err});
         return err;
     };
@@ -157,21 +214,70 @@ test "clean file" {
     defer cleaned_file_read.close();
     const cleaned_file_reader = cleaned_file_read.reader();
     var cleaned_buffer: [1024]u8 = undefined;
-
     const expected: [6][:0]u8 = .{ @constCast("hello"), @constCast("this"), @constCast("is"), @constCast("a"), @constCast("test"), @constCast("file") };
-    print("expected: {s}\n", .{expected[0..expected.len]});
     var foundExpected = false;
-    while (try nextLine(cleaned_file_reader, &cleaned_buffer)) |line| {
-        print("line: {s}\n", .{line});
+    var next_line = try nextLine(cleaned_file_reader, &cleaned_buffer);
+    while (next_line != null) {
         inner: for (&expected) |expectedValue| {
-            print("{s}\n", .{expectedValue});
-            if (eql(u8, line, expectedValue)) {
-                print("found expected: {s}\n", .{expectedValue});
+            if (eql(u8, next_line.?, expectedValue)) {
                 foundExpected = true;
                 break :inner;
             }
         }
         try expect(foundExpected);
         foundExpected = false;
+        next_line = try nextLine(cleaned_file_reader, &cleaned_buffer);
+    }
+}
+
+test "sort file" {
+    const file_path = try createTestFile();
+    var buffer: [1024]u8 = undefined;
+    const cleaned_file_path: []u8 = try cleanFile(file_path, &buffer);
+    buffer = undefined;
+    const sorted_file_path = try sortFile(cleaned_file_path, &buffer);
+    buffer = undefined;
+    const sorted_file_read = try std.fs.cwd().openFile(sorted_file_path, .{});
+    defer sorted_file_read.close();
+    const sorted_file_reader = sorted_file_read.reader();
+    var sorted_buffer: [1024]u8 = undefined;
+    var i: usize = 0;
+    while (try sorted_file_reader.readUntilDelimiterOrEof(&sorted_buffer, '\n')) |line| {
+        if (i < 4) {
+            const expected: []const u8 = "a";
+            try std.testing.expectEqualStrings(expected, line);
+            i += 1;
+            continue;
+        }
+        if (i == 4) {
+            const expected: []const u8 = "hello";
+            try std.testing.expectEqualStrings(expected, line);
+            i += 1;
+            continue;
+        }
+
+        if (i < 9) {
+            const expected: []const u8 = "is";
+            try std.testing.expectEqualStrings(expected, line);
+            i += 1;
+            continue;
+        }
+
+        if (i < 13) {
+            const expected: []const u8 = "test";
+            try std.testing.expectEqualStrings(expected, line);
+            i += 1;
+            continue;
+        }
+        if (i < 17) {
+            const expected: []const u8 = "this";
+            try std.testing.expectEqualStrings(expected, line);
+            i += 1;
+            continue;
+        }
+        if (i > 16) {
+            std.debug.print("unexpected line: {s}\n", .{line});
+            try std.testing.expect(false);
+        }
     }
 }

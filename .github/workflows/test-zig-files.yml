@@ -5,9 +5,9 @@ on:
         branches:
             - main
         paths:
-            - "**.zig"
-            - "**/**.zig"
-            - ".github/workflows/test-zig-files.yml"
+            - '**.zig'
+            - '**/**.zig'
+            - '.github/workflows/test-zig-files.yml'
 
 jobs:
     Simple-tests:
@@ -40,9 +40,9 @@ jobs:
             - uses: goto-bus-stop/setup-zig@v2
             - run: |
                   echo 'testing P0-tests.zig'
-                  zig test P0-tests.zig
+                  zig test src/P0-tests.zig
                   echo 'testing utils.zig'
-                  zig test utils.zig
+                  zig test src/utils.zig
               working-directory: Project0-word
               shell: bash
 
