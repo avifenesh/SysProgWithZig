@@ -1,0 +1,4 @@
+[codespell]
+skip=.gitignore,.vscode/*,node_modules/*,./Project0-word/test_plain.txt
+count=true
+quiet-level=3

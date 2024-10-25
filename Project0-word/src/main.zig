@@ -1,8 +1,9 @@
 const std = @import("std");
-const heap = std.heap;
 const count_words = @import("count_words.zig");
 const utils = @import("utils.zig");
 const print = std.debug.print;
+pub const log_level: std.log.Level = .debug;
+const heap = std.heap;
 
 pub fn main() !void {
     const stdout = std.io.getStdOut();
@@ -37,7 +38,7 @@ pub fn main() !void {
             line = value;
         } else {
             try stdout.writeAll(
-                \\ 
+                \\
                 \\ No arguments provided. 
                 \\
             );

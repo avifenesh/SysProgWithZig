@@ -1,25 +1,8 @@
-# Ignore all
-*
-
-# Unignore all with extensions
-!*.*
-
-# Unignore all dirs
-!*/
-
-!.*
-
-*.o
-.typo
-
-# Ignore `bin` dir
-bin/
-*/bin/*
-
 .history
 .vscode
 
 *zig-cache
 zig-out
 
-test_file*
+test_f*.txt**
+
