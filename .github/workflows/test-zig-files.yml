@@ -16,8 +16,8 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - uses: actions/checkout@v2
-            - uses: goto-bus-stop/setup-zig@v2
+            - uses: actions/checkout@v4
+            - uses: mlugg/setup-zig@v1
             - run: |
                   zig test beginner_basics.zig
                   zig test testing_stuff.zig
@@ -36,8 +36,8 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - uses: actions/checkout@v2
-            - uses: goto-bus-stop/setup-zig@v2
+            - uses: actions/checkout@v4
+            - uses: mlugg/setup-zig@v1
             - run: |
                   echo 'testing P0-tests.zig'
                   zig test src/P0-tests.zig
@@ -49,6 +49,6 @@ jobs:
     lint:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: goto-bus-stop/setup-zig@v2
+            - uses: actions/checkout@v4
+            - uses: mlugg/setup-zig@v1
             - run: zig fmt --check .
